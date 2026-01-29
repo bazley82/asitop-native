@@ -13,9 +13,14 @@ class DataCollector: ObservableObject {
         // Get CPU Name
         var size = 0
         sysctlbyname("machdep.cpu.brand_string", nil, &size, nil, 0)
-        var name = [CChar](repeating: 0, count: size)
-        sysctlbyname("machdep.cpu.brand_string", &name, &size, nil, 0)
-        self.metrics.cpuName = String(cString: name)
+        if size > 0 {
+            var name = [CChar](repeating: 0, count: size)
+            sysctlbyname("machdep.cpu.brand_string", &name, &size, nil, 0)
+            let brand = String(cString: name).trimmingCharacters(in: .whitespacesAndNewlines)
+            if !brand.isEmpty {
+                self.metrics.cpuName = brand
+            }
+        }
         
         checkPermission()
         

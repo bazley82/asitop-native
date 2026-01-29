@@ -27,7 +27,7 @@ iconutil -c icns "$BUILD_DIR/asitop.iconset" -o "$APP_BUNDLE/Contents/Resources/
 echo "🔨 Compiling main app..."
 swiftc -O \
     -parse-as-library \
-    -target arm64-apple-macosx15.0 \
+    -target arm64-apple-macosx26.2 \
     -o "$APP_BUNDLE/Contents/MacOS/$APP_NAME" \
     "$SRC_DIR"/asitop_nativeApp.swift \
     "$SRC_DIR"/DashboardView.swift \
@@ -42,7 +42,7 @@ mkdir -p "$EXT_BUNDLE/Contents/MacOS"
 
 swiftc -O \
     -parse-as-library \
-    -target arm64-apple-macosx26.0 \
+    -target arm64-apple-macosx26.2 \
     -o "$EXT_BUNDLE/Contents/MacOS/$EXT_NAME" \
     -framework WidgetKit -framework AppIntents -framework SwiftUI \
     "$SRC_DIR"/ControlWidget.swift
@@ -64,13 +64,21 @@ cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.2.5</string>
+    <string>1.2.6</string>
     <key>CFBundleVersion</key>
-    <string>1.2.5</string>
+    <string>1.2.6</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
-    <string>15.0</string>
+    <string>14.0</string>
+    <key>DTPlatformVersion</key>
+    <string>26.2</string>
+    <key>DTSDKName</key>
+    <string>macosx26.2</string>
+    <key>CFBundleSupportedPlatforms</key>
+    <array>
+        <string>MacOSX</string>
+    </array>
 </dict>
 </plist>
 EOF
