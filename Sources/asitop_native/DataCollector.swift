@@ -149,21 +149,24 @@ class DataCollector: ObservableObject {
     
     func runSetup() {
         let user = NSUserName()
-        // Standardize the sudoers entry for robustness
         let sudoersEntry = "\(user) ALL=(ALL) NOPASSWD: /usr/bin/powermetrics"
         let sudoersFile = "/etc/sudoers.d/asitop_native"
         
-        let script = "do shell script \"mkdir -p /etc/sudoers.d && echo '\(sudoersEntry)' | sudo tee \(sudoersFile) && sudo chmod 440 \(sudoersFile)\" with administrator privileges"
+        // Use a more explicit bash command to ensure directory existence and file creation
+        let script = "do shell script \"/bin/mkdir -p /etc/sudoers.d && /usr/bin/printf '\(sudoersEntry)\\n' | /usr/bin/sudo /usr/bin/tee \(sudoersFile) && /usr/bin/sudo /bin/chmod 440 \(sudoersFile)\" with administrator privileges"
         
         var error: NSDictionary?
         if let appleScript = NSAppleScript(source: script) {
-            appleScript.executeAndReturnError(&error)
+            let result = appleScript.executeAndReturnError(&error)
             if error == nil {
-                self.checkPermission()
-                // Restart process to pick up new permissions
-                self.process?.terminate()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    self.startPowermetricsProcess()
+                print("Permission script executed successfully: \(result)")
+                // Give the system a moment to register the change
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.checkPermission()
+                    self.process?.terminate()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.startPowermetricsProcess()
+                    }
                 }
             } else {
                 print("Permission setup failed: \(String(describing: error))")

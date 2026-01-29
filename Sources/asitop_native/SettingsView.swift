@@ -9,73 +9,122 @@ struct SettingsView: View {
     @AppStorage("showMenuBar") private var showMenuBar = true
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            Text("Settings")
-                .font(.title).bold()
+        ZStack {
+            VisualEffectView(material: .hudWindow, blendingMode: .behindWindow)
+                .ignoresSafeArea()
             
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    SectionView(title: "GENERAL") {
-                        Toggle("Launch at Login (Perpetual)", isOn: $launchAtLogin)
+            VStack(alignment: .leading, spacing: 0) {
+                // Header
+                HStack {
+                    Text("Settings")
+                        .font(.system(size: 24, weight: .bold))
+                    Spacer()
+                    Button(action: { isPresented = false }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(25)
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        
+                        LiquidSection(title: "AUTORUN") {
+                            Toggle(isOn: $launchAtLogin) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Launch at Login")
+                                        .font(.system(size: 14, weight: .medium))
+                                    Text("Start ASITOP automatically on boot.")
+                                        .font(.system(size: 11)).opacity(0.6)
+                                }
+                            }
                             .onChange(of: launchAtLogin) { newValue in
                                 toggleLaunchAtLogin(enabled: newValue)
                             }
-                    }
-                    
-                    SectionView(title: "VISIBILITY") {
-                        Toggle("Show in Menu Bar", isOn: $showMenuBar)
-                    }
-                    
-                    SectionView(title: "CONTROL CENTER & DESKTOP") {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Widgets and Control Center entries are managed by macOS. Use the 'Edit' buttons in those areas to find ASITOP.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            
-                            Button("Refresh Widgets") {
-                                WidgetCenter.shared.reloadAllTimelines()
-                            }
                         }
-                    }
-                    
-                    SectionView(title: "PERMISSIONS") {
-                        HStack {
-                            Image(systemName: collector.hasPermission ? "checkmark.circle.fill" : "lock.circle.fill")
-                                .foregroundColor(collector.hasPermission ? .green : .orange)
-                            VStack(alignment: .leading) {
-                                Text(collector.hasPermission ? "Perpetual Access: ON" : "Access: Locked")
-                                    .font(.headline)
-                                Text(collector.hasPermission ? "No password needed anymore." : "Click to setup permanent access.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            if !collector.hasPermission {
-                                Button("Setup") {
-                                    collector.runSetup()
+                        
+                        LiquidSection(title: "INTERFACE") {
+                            Toggle(isOn: $showMenuBar) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Menu Bar Icon")
+                                        .font(.system(size: 14, weight: .medium))
+                                    Text("Show current usage in the menu bar at all times.")
+                                        .font(.system(size: 11)).opacity(0.6)
                                 }
                             }
                         }
-                        .padding(10)
-                        .background(Color.white.opacity(0.05))
-                        .cornerRadius(8)
+                        
+                        LiquidSection(title: "SYSTEM INTEGRATION") {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Add ASITOP to your Desktop or Control Center using the system's edit mode.")
+                                    .font(.system(size: 11))
+                                    .opacity(0.6)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                
+                                Button(action: { WidgetCenter.shared.reloadAllTimelines() }) {
+                                    HStack {
+                                        Image(systemName: "arrow.clockwise.circle.fill")
+                                        Text("Refresh System Widgets")
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.large)
+                            }
+                        }
+                        
+                        LiquidSection(title: "SECURITY") {
+                            HStack(spacing: 15) {
+                                Circle()
+                                    .fill(collector.hasPermission ? .green.opacity(0.2) : .orange.opacity(0.2))
+                                    .frame(width: 40, height: 40)
+                                    .overlay {
+                                        Image(systemName: collector.hasPermission ? "checkmark.shield.fill" : "lock.shield.fill")
+                                            .foregroundColor(collector.hasPermission ? .green : .orange)
+                                    }
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(collector.hasPermission ? "Perpetual Access Enabled" : "Administrative Access Required")
+                                        .font(.system(size: 14, weight: .bold))
+                                    Text(collector.hasPermission ? "App can monitor hardware without passwords." : "Authorize once to monitor forever.")
+                                        .font(.system(size: 11))
+                                        .opacity(0.6)
+                                }
+                                
+                                Spacer()
+                                
+                                if !collector.hasPermission {
+                                    Button("Setup") {
+                                        collector.runSetup()
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .controlSize(.small)
+                                }
+                            }
+                        }
                     }
+                    .padding(.horizontal, 25)
+                    .padding(.bottom, 30)
                 }
-            }
-            
-            Divider()
-            
-            HStack {
-                Spacer()
-                Button("Done") {
-                    isPresented = false
+                
+                Divider().opacity(0.1)
+                
+                HStack {
+                    Text("v1.2.2 - Build with Google Antigravity").font(.system(size: 9, weight: .bold)).opacity(0.3)
+                    Spacer()
+                    Button("Close") {
+                        isPresented = false
+                    }
+                    .keyboardShortcut(.defaultAction)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                 }
-                .keyboardShortcut(.defaultAction)
-                .buttonStyle(.borderedProminent)
+                .padding(25)
             }
         }
-        .padding(25)
-        .frame(width: 450, height: 500)
+        .frame(width: 440, height: 600)
     }
 
     private func toggleLaunchAtLogin(enabled: Bool) {
@@ -87,24 +136,6 @@ struct SettingsView: View {
             }
         } catch {
             print("Failed to update launch at login: \(error)")
-        }
-    }
-}
-
-struct SectionView<Content: View>: View {
-    let title: String
-    let content: Content
-    
-    init(title: String, @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.content = content()
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.caption).bold().foregroundColor(.secondary)
-            content
-            Divider()
         }
     }
 }
