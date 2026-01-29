@@ -112,7 +112,7 @@ struct SettingsView: View {
                 Divider().opacity(0.1)
                 
                 HStack {
-                    Text("v1.2.4 - Build with Google Antigravity").font(.system(size: 9, weight: .bold)).opacity(0.3)
+                    Text("v1.2.5 - Build with Google Antigravity").font(.system(size: 9, weight: .bold)).opacity(0.3)
                     Spacer()
                     Button("Close") {
                         isPresented = false

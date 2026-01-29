@@ -27,7 +27,7 @@ iconutil -c icns "$BUILD_DIR/asitop.iconset" -o "$APP_BUNDLE/Contents/Resources/
 echo "🔨 Compiling main app..."
 swiftc -O \
     -parse-as-library \
-    -target arm64-apple-macosx26.0 \
+    -target arm64-apple-macosx15.0 \
     -o "$APP_BUNDLE/Contents/MacOS/$APP_NAME" \
     "$SRC_DIR"/asitop_nativeApp.swift \
     "$SRC_DIR"/DashboardView.swift \
@@ -64,13 +64,13 @@ cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.2.4</string>
+    <string>1.2.5</string>
     <key>CFBundleVersion</key>
-    <string>1.2.4</string>
+    <string>1.2.5</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
-    <string>26.3</string>
+    <string>15.0</string>
 </dict>
 </plist>
 EOF

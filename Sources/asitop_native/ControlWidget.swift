@@ -88,7 +88,7 @@ struct SimpleEntry: TimelineEntry {
 }
 
 // MARK: - Control Center
-@available(macOS 26.0, *)
+@available(macOS 15.0, *)
 struct ASITOPControl: ControlWidget {
     static let kind: String = "com.bazley82.asitop-native.control"
 
@@ -103,7 +103,7 @@ struct ASITOPControl: ControlWidget {
     }
 }
 
-@available(macOS 26.0, *)
+@available(macOS 15.0, *)
 struct OpenASITOPIntent: AppIntent, ControlConfigurationIntent {
     static var title: LocalizedStringResource = "Open ASITOP"
     static var isDiscoverable: Bool = true
