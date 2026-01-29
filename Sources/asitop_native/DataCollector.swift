@@ -10,6 +10,13 @@ class DataCollector: ObservableObject {
     private let metricsFile = "/tmp/asitop_native.plist"
     
     func start() {
+        // Get CPU Name
+        var size = 0
+        sysctlbyname("machdep.cpu.brand_string", nil, &size, nil, 0)
+        var name = [CChar](repeating: 0, count: size)
+        sysctlbyname("machdep.cpu.brand_string", &name, &size, nil, 0)
+        self.metrics.cpuName = String(cString: name)
+        
         checkPermission()
         
         // Clean up old file
@@ -227,12 +234,16 @@ class DataCollector: ObservableObject {
                 self.metrics.cpu.gpuPower = getDouble(processor, key: "gpu_energy") / 1000.0
             }
             
-            // ANE Power
+            // ANE Power & Estimation
             let aneK = ["ane_power", "ane_energy", "ane_power_mW"]
             for k in aneK {
                 let v = getDouble(processor, key: k)
                 if v > 0 {
-                    self.metrics.cpu.anePower = v / (k.contains("energy") || k.contains("mW") ? 1000.0 : 1.0)
+                    let power = v / (k.contains("energy") || k.contains("mW") ? 1000.0 : 1.0)
+                    self.metrics.cpu.anePower = power
+                    // Max ANE power is usually around 5-8W on these chips. 
+                    // Let's use 5W as a rough 100% activity baseline for visualization.
+                    self.metrics.cpu.aneActive = min(100.0, (power / 5.0) * 100.0)
                     break
                 }
             }

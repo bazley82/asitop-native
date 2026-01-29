@@ -19,7 +19,7 @@ struct DashboardView: View {
                         .foregroundStyle(.linearGradient(colors: [.blue, .cyan], startPoint: .top, endPoint: .bottom))
                     
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("ASITOP NATIVE")
+                        Text(collector.metrics.cpuName.uppercased())
                             .font(.system(size: 14, weight: .black))
                             .tracking(2)
                         Text("Apple Silicon Performance")
@@ -51,10 +51,11 @@ struct DashboardView: View {
                     VStack(spacing: 24) {
                         // CPU Section
                         LiquidSection(title: "PROCESSOR") {
-                            HStack(spacing: 15) {
+                            HStack(spacing: 12) {
                                 GlassGauge(label: "E-CORES", value: collector.metrics.cpu.eClusterActive, color: .green)
                                 GlassGauge(label: "P-CORES", value: collector.metrics.cpu.pClusterActive, color: .blue)
                                 GlassGauge(label: "GPU", value: collector.metrics.gpu.active, color: .purple)
+                                GlassGauge(label: "NPU (ANE)", value: collector.metrics.cpu.aneActive, color: .red)
                             }
                         }
                         

@@ -9,6 +9,7 @@ struct CPUMetrics: Codable {
     var cpuPower: Double = 0
     var gpuPower: Double = 0
     var anePower: Double = 0
+    var aneActive: Double = 0 // Estimated from power
     var individualCores: [CoreMetric] = []
 }
 
@@ -42,5 +43,6 @@ struct SystemMetrics: Codable {
     var gpu: GPUMetrics = GPUMetrics()
     var ram: RAMMetrics = RAMMetrics()
     var thermalPressure: String = "Nominal"
+    var cpuName: String = "Apple Silicon"
     var timestamp: Date = Date()
 }

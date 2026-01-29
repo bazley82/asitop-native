@@ -64,9 +64,9 @@ cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.2.2</string>
+    <string>1.2.4</string>
     <key>CFBundleVersion</key>
-    <string>1.2.2</string>
+    <string>1.2.4</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
@@ -91,12 +91,15 @@ echo "🔗 Registering with system services..."
 # Force LaunchServices to re-scan
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f -kill -seed -r /Applications/ASITOP.app
 
-# Register with pluginkit
-pluginkit -a /Applications/ASITOP.app/Contents/PlugIns/ControlWidget.appex
+# Register with pluginkit (more aggressive)
+echo "🔗 Activating extension..."
+pluginkit -a "/Applications/ASITOP.app/Contents/PlugIns/ControlWidget.appex"
+pluginkit -e use -i "com.bazley82.asitop-native.ControlWidget"
 
-# Restart Widget Center to pick up changes
-echo "♻️ Refreshing WidgetCenter..."
-killall WidgetCenter 2>/dev/null || true
-killall Chronod 2>/dev/null || true
+# Restart system services
+echo "♻️ Refreshing Widget & Control Center services..."
+killall -9 chronod 2>/dev/null || true
+killall -9 WidgetCenter 2>/dev/null || true
+killall -9 ControlCenter 2>/dev/null || true
 
 echo "🚀 Done! Please open ASITOP from your Applications folder, then check Control Center."
