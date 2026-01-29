@@ -2,7 +2,7 @@
 
 # Configuration
 APP_NAME="ASITOP"
-BUNDLE_ID="com.barriesanders.asitop-native"
+BUNDLE_ID="com.bazley82.asitop-native"
 SRC_DIR="./Sources/asitop_native"
 BUILD_DIR="./build"
 APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
@@ -11,6 +11,7 @@ APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
 rm -rf "$BUILD_DIR"
 mkdir -p "$APP_BUNDLE/Contents/MacOS"
 mkdir -p "$APP_BUNDLE/Contents/Resources"
+mkdir -p "$APP_BUNDLE/Contents/PlugIns"
 
 echo "🎨 Creating icon asset..."
 # Create iconset
@@ -23,15 +24,30 @@ sips -s format png -z 512 512 Resources/icon.png --out "$BUILD_DIR/asitop.iconse
 sips -s format png -z 1024 1024 Resources/icon.png --out "$BUILD_DIR/asitop.iconset/icon_512x512@2x.png"
 iconutil -c icns "$BUILD_DIR/asitop.iconset" -o "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
 
-echo "🔨 Compiling Swift sources..."
-# Compile all swift files in the directory
+echo "🔨 Compiling main app..."
 swiftc -O \
     -parse-as-library \
-    -target arm64-apple-macosx13.0 \
+    -target arm64-apple-macosx26.0 \
     -o "$APP_BUNDLE/Contents/MacOS/$APP_NAME" \
-    "$SRC_DIR"/*.swift
+    "$SRC_DIR"/asitop_nativeApp.swift \
+    "$SRC_DIR"/DashboardView.swift \
+    "$SRC_DIR"/DataCollector.swift \
+    "$SRC_DIR"/MetricsModel.swift
 
-# Create Info.plist
+echo "🔨 Compiling Control Center extension..."
+EXT_NAME="ControlWidget"
+EXT_BUNDLE="$APP_BUNDLE/Contents/PlugIns/$EXT_NAME.appex"
+mkdir -p "$EXT_BUNDLE/Contents/MacOS"
+
+swiftc -O \
+    -parse-as-library \
+    -target arm64-apple-macosx26.0 \
+    -o "$EXT_BUNDLE/Contents/MacOS/$EXT_NAME" \
+    "$SRC_DIR"/ControlWidget.swift
+
+cp Control-Info.plist "$EXT_BUNDLE/Contents/Info.plist"
+
+# Create Info.plist for main app
 cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
