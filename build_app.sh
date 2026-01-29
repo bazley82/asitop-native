@@ -49,11 +49,7 @@ swiftc -O \
 
 cp Control-Info.plist "$EXT_BUNDLE/Contents/Info.plist"
 
-echo "🔐 Codesigning extension and app..."
-codesign --force --sign - "$EXT_BUNDLE"
-codesign --force --sign - "$APP_BUNDLE"
-
-# Create Info.plist for main app
+# Create Info.plist for main app FIRST
 cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -68,7 +64,7 @@ cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.1</string>
+    <string>1.2.1</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
@@ -76,6 +72,10 @@ cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
 </dict>
 </plist>
 EOF
+
+echo "🔐 Codesigning extension and app..."
+codesign --force --entitlements Entitlements.plist --sign - "$EXT_BUNDLE"
+codesign --force --entitlements Entitlements.plist --sign - "$APP_BUNDLE"
 
 echo "✅ App bundle created at $APP_BUNDLE"
 

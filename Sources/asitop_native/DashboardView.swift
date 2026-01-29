@@ -66,7 +66,7 @@ struct DashboardView: View {
         .frame(width: 350, height: 500)
         .background(VisualEffectView(material: .hudWindow, blendingMode: .behindWindow))
         .sheet(isPresented: $showingSettings) {
-            SettingsView(collector: collector)
+            SettingsView(collector: collector, isPresented: $showingSettings)
                 .overlay(alignment: .topTrailing) {
                     Button(action: { showingSettings = false }) {
                         Image(systemName: "xmark.circle.fill")
