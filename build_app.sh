@@ -13,6 +13,10 @@ mkdir -p "$APP_BUNDLE/Contents/MacOS"
 mkdir -p "$APP_BUNDLE/Contents/Resources"
 mkdir -p "$APP_BUNDLE/Contents/PlugIns"
 
+# Get SDK Path
+SDK_PATH=$(xcrun --show-sdk-path)
+echo "📂 Using SDK: $SDK_PATH"
+
 echo "🎨 Creating icon asset..."
 # Create iconset
 mkdir -p "$BUILD_DIR/asitop.iconset"
@@ -28,6 +32,7 @@ echo "🔨 Compiling main app..."
 swiftc -O \
     -parse-as-library \
     -target arm64-apple-macosx26.2 \
+    -sdk "$SDK_PATH" \
     -o "$APP_BUNDLE/Contents/MacOS/$APP_NAME" \
     "$SRC_DIR"/asitop_nativeApp.swift \
     "$SRC_DIR"/DashboardView.swift \
@@ -43,6 +48,7 @@ mkdir -p "$EXT_BUNDLE/Contents/MacOS"
 swiftc -O \
     -parse-as-library \
     -target arm64-apple-macosx26.2 \
+    -sdk "$SDK_PATH" \
     -o "$EXT_BUNDLE/Contents/MacOS/$EXT_NAME" \
     -framework WidgetKit -framework AppIntents -framework SwiftUI \
     "$SRC_DIR"/ControlWidget.swift
@@ -64,9 +70,9 @@ cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.2.6</string>
+    <string>1.2.7</string>
     <key>CFBundleVersion</key>
-    <string>1.2.6</string>
+    <string>1.2.7</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
