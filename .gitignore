@@ -1,0 +1,5 @@
+build/
+.DS_Store
+*.plist
+!Info.plist
+/tmp/
