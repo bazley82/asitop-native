@@ -7,6 +7,8 @@ A native macOS Menu Bar application implementation of the popular [asitop](https
 ## Credits
 This project is a native implementation inspired by the original [asitop](https://github.com/tlkh/asitop) created by **[tlkh](https://github.com/tlkh)**.
 
+Created using **vibe coding** with **Google Antigravity**.
+
 ## Features
 - **Real-time Metrics**: CPU, GPU, ANE (Neural Engine), and RAM usage.
 - **Modern UI**: Built with SwiftUI for a premium macOS look and feel.
