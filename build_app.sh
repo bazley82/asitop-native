@@ -65,6 +65,8 @@ cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
     <string>1.2.2</string>
+    <key>CFBundleVersion</key>
+    <string>1.2.2</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
@@ -74,7 +76,7 @@ cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
 EOF
 
 echo "🔐 Codesigning extension and app..."
-codesign --force --entitlements Entitlements.plist --sign - "$EXT_BUNDLE"
+codesign --force --entitlements Widget.entitlements --sign - "$EXT_BUNDLE"
 codesign --force --entitlements Entitlements.plist --sign - "$APP_BUNDLE"
 
 echo "✅ App bundle created at $APP_BUNDLE"
@@ -84,9 +86,17 @@ echo "📂 Deploying to /Applications..."
 rm -rf /Applications/ASITOP.app
 cp -r "$APP_BUNDLE" /Applications/ASITOP.app
 
-# Register the plugin with the system
+# Register the plugin with the system aggressively
 echo "🔗 Registering with system services..."
-/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/ASITOP.app
+# Force LaunchServices to re-scan
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f -kill -seed -r /Applications/ASITOP.app
+
+# Register with pluginkit
 pluginkit -a /Applications/ASITOP.app/Contents/PlugIns/ControlWidget.appex
+
+# Restart Widget Center to pick up changes
+echo "♻️ Refreshing WidgetCenter..."
+killall WidgetCenter 2>/dev/null || true
+killall Chronod 2>/dev/null || true
 
 echo "🚀 Done! Please open ASITOP from your Applications folder, then check Control Center."
