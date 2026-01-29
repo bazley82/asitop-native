@@ -149,15 +149,24 @@ class DataCollector: ObservableObject {
     
     func runSetup() {
         let user = NSUserName()
-        let script = "do shell script \"echo '\(user) ALL=(ALL) NOPASSWD: /usr/bin/powermetrics' | sudo tee /etc/sudoers.d/asitop_native && sudo chmod 440 /etc/sudoers.d/asitop_native\" with administrator privileges"
+        // Standardize the sudoers entry for robustness
+        let sudoersEntry = "\(user) ALL=(ALL) NOPASSWD: /usr/bin/powermetrics"
+        let sudoersFile = "/etc/sudoers.d/asitop_native"
+        
+        let script = "do shell script \"mkdir -p /etc/sudoers.d && echo '\(sudoersEntry)' | sudo tee \(sudoersFile) && sudo chmod 440 \(sudoersFile)\" with administrator privileges"
         
         var error: NSDictionary?
         if let appleScript = NSAppleScript(source: script) {
             appleScript.executeAndReturnError(&error)
             if error == nil {
                 self.checkPermission()
+                // Restart process to pick up new permissions
                 self.process?.terminate()
-                self.startPowermetricsProcess()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    self.startPowermetricsProcess()
+                }
+            } else {
+                print("Permission setup failed: \(String(describing: error))")
             }
         }
     }

@@ -3,12 +3,25 @@ import SwiftUI
 struct DashboardView: View {
     @ObservedObject var collector: DataCollector
     
+    @State private var showingSettings = false
+    
     var body: some View {
-        VStack(spacing: 16) {
-            HeaderView(name: "Apple Silicon")
+        VStack(spacing: 0) {
+            HStack {
+                HeaderView(name: "Apple Silicon")
+                Spacer()
+                Button(action: { showingSettings.toggle() }) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing)
+            }
             
             if !collector.hasPermission {
                 PermissionRequestView(collector: collector)
+                    .padding(.bottom)
             }
             
             ScrollView {
@@ -49,20 +62,21 @@ struct DashboardView: View {
                 }
                 .padding()
             }
-            
-            Divider()
-            
-            HStack {
-                Button("Quit") {
-                    NSApplication.shared.terminate(nil)
-                }
-                Spacer()
-                Text("v1.0.0").font(.caption).foregroundColor(.secondary)
-            }
-            .padding([.horizontal, .bottom])
         }
-        .frame(width: 300, height: 450)
+        .frame(width: 350, height: 500)
         .background(VisualEffectView(material: .hudWindow, blendingMode: .behindWindow))
+        .sheet(isPresented: $showingSettings) {
+            SettingsView(collector: collector)
+                .overlay(alignment: .topTrailing) {
+                    Button(action: { showingSettings = false }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .padding()
+                }
+        }
     }
 }
 

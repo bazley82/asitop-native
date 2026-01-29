@@ -32,7 +32,8 @@ swiftc -O \
     "$SRC_DIR"/asitop_nativeApp.swift \
     "$SRC_DIR"/DashboardView.swift \
     "$SRC_DIR"/DataCollector.swift \
-    "$SRC_DIR"/MetricsModel.swift
+    "$SRC_DIR"/MetricsModel.swift \
+    "$SRC_DIR"/SettingsView.swift
 
 echo "🔨 Compiling Control Center extension..."
 EXT_NAME="ControlWidget"
@@ -43,9 +44,14 @@ swiftc -O \
     -parse-as-library \
     -target arm64-apple-macosx26.0 \
     -o "$EXT_BUNDLE/Contents/MacOS/$EXT_NAME" \
+    -framework WidgetKit -framework AppIntents -framework SwiftUI \
     "$SRC_DIR"/ControlWidget.swift
 
 cp Control-Info.plist "$EXT_BUNDLE/Contents/Info.plist"
+
+echo "🔐 Codesigning extension and app..."
+codesign --force --sign - "$EXT_BUNDLE"
+codesign --force --sign - "$APP_BUNDLE"
 
 # Create Info.plist for main app
 cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
@@ -62,19 +68,25 @@ cat <<EOF > "$APP_BUNDLE/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>1.1</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
-    <string>13.0</string>
-    <key>LSUIElement</key>
-    <true/>
+    <string>26.3</string>
 </dict>
 </plist>
 EOF
 
 echo "✅ App bundle created at $APP_BUNDLE"
 
-# Final step: move to /Applications (Optional, but good for user)
-# We'll just point them to the build folder for now to avoid sudo issues during build
-echo "🚀 To run: open $APP_BUNDLE"
+# Deploy to /Applications (required for reliable extension discovery)
+echo "📂 Deploying to /Applications..."
+rm -rf /Applications/ASITOP.app
+cp -r "$APP_BUNDLE" /Applications/ASITOP.app
+
+# Register the plugin with the system
+echo "🔗 Registering with system services..."
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/ASITOP.app
+pluginkit -a /Applications/ASITOP.app/Contents/PlugIns/ControlWidget.appex
+
+echo "🚀 Done! Please open ASITOP from your Applications folder, then check Control Center."
